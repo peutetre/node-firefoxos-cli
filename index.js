@@ -39,14 +39,41 @@ var FFOS_Cli = function FFOS_Cli() {
     }
   }
 
+  var getDevices = function getDevices() {
+    return new Promise(function (resolve, reject) {
+      adb.traceDevice(function onDevices(devices) {
+        Promise.all(devices.map(function (device) {
+          return new Promise(function(resolveShellCmd) {
+            device.shellCmd('test -f /system/b2g/b2g; echo $?', [], function onCmd(data) {
+              resolveShellCmd(parseInt(data.replace(/\n/g, ''), 10) > 0 ? null: device);
+            });
+          });
+        })).done(function (ffDevices) {
+          var result = ffDevices.filter(function (device) {
+            return device;
+          });
+          if (result.length > 0) {
+            resolve(result);
+          } else {
+            reject('No devices');
+          }
+        });
+      });
+    });
+  };
+
+  var getFirstDevice = function getFirstDevice() {
+    return getDevices().then(function (devices) {
+        return devices[0];
+    });
+  };
+
   // Start displaying the logcat for the first device we find
   var logcat = function logcat() {
-    adb.traceDevice(function onDevices(devices) {
-      if (!devices || devices.length == 0) {
-        return;
-      }
-      devices[0].logcat();
-    });
+      getFirstDevice().then(function (device) {
+        if(!device) return;
+        device.logcat();
+      });
   };
 
   // Takes a screenshot from device if any, pass a file name
@@ -55,11 +82,7 @@ var FFOS_Cli = function FFOS_Cli() {
   // happened
   var screenshot = function screenshot(fileName) {
     return new Promise(function(resolve, reject) {
-      adb.traceDevice(function onDevices(devices) {
-        if (!devices || devices.length == 0) {
-          reject('No devices');
-        }
-        var device = devices[0];
+      getFirstDevice().then(function (device) {
         try {
           device.takeSnapshot(function onSnapshot(frame) {
             frame.writeImageFile(fileName);
@@ -68,7 +91,7 @@ var FFOS_Cli = function FFOS_Cli() {
         } catch (e) {
           reject(e);
         }
-      });
+      }, reject);
     });
   };
 
@@ -159,24 +182,18 @@ var FFOS_Cli = function FFOS_Cli() {
   // Push a local file to a remote location on the phone
   var pushFile = function pushFile(local, remote) {
     return new Promise(function(resolve, reject) {
-      adb.traceDevice(function onDevices(devices) {
-        // Work with the first device we found, if any
-        if (!devices || devices.length == 0) {
-          return reject('No devices found');
-        }
-        var device = devices[0];
-
+      getFirstDevice().then(function (device) {
         device.getSyncService(function onSyncService(sync) {
           sync.pushFile(local, remote, resolve);
         });
-      });
+      }, reject);
     });
   };
 
   // Resets the B2G process as the name says
   var resetB2G = function resetB2G() {
     return new Promise(function(resolve) {
-      adb.traceDevice(function onDevices(devices) {
+      getFirstDevices().then(function (devices) {
         for (var i = 0; i < devices.length; i++) {
           var device = devices[i];
           device.shellCmd('stop', ['b2g'], function onCmd(data) {

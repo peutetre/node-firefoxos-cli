@@ -1,6 +1,6 @@
 {
   "name": "node-firefoxos-cli",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Firefox OS command line commander",
   "keywords": [
     "firefox os",
