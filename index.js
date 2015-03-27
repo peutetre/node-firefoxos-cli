@@ -27,8 +27,8 @@ var FFOS_Cli = function FFOS_Cli() {
     }
   }
 
-  function ensurePortForwarded(sn) {
-    if (!portForwarded) {
+  function ensurePortForwarded(sn, force) {
+    if (!portForwarded || force) {
       portForwarded = true;
 
       return new Promise(function(resolve) {
@@ -134,8 +134,8 @@ var FFOS_Cli = function FFOS_Cli() {
     1.- Forward the remote debugger port (use config if present)
     2.- Use the remote client to tell the system to stop the app
   */
-  var closeApp = function closeApp(appId) {
-    return appCommandRemote("close", appId, null);
+  var closeApp = function closeApp(appId, sn) {
+    return appCommandRemote("close", appId, null, sn);
   };
 
   /*
@@ -143,8 +143,8 @@ var FFOS_Cli = function FFOS_Cli() {
     1.- Forward the remote debugger port (use config if present)
     2.- Use the remote client to tell the system to launch the app
   */
-  var launchApp = function launchApp(appId) {
-    return appCommandRemote("launch", appId, null);
+  var launchApp = function launchApp(appId, sn) {
+    return appCommandRemote("launch", appId, null, sn);
   };
 
   /*
@@ -152,8 +152,8 @@ var FFOS_Cli = function FFOS_Cli() {
     1.- Forward the remote debugger port (use config if present)
     2.- Use the remote client to tell the system to execute the command
   */
-  var appCommand = function appCommand(command, appId, actor) {
-    return appCommandRemote(command, appId, actor);
+  var appCommand = function appCommand(command, appId, actor, sn) {
+    return appCommandRemote(command, appId, actor, sn);
   };
 
   /*
@@ -181,14 +181,16 @@ var FFOS_Cli = function FFOS_Cli() {
     });
   };
 
-  var appCommandRemote = function appCommandRemote(command, appId, actor) {
+  var appCommandRemote = function appCommandRemote(command, appId, actor, sn) {
     ensureRemoteInit();
     return new Promise(function(resolve, reject) {
-      remote.appCommand(command, appId, actor, function onLaunch(err, data) {
-        if (err) {
-          return reject(err);
-        }
-        resolve(data);
+      ensurePortForwarded(sn, true).then(function () {
+        remote.appCommand(command, appId, actor, function onLaunch(err, data) {
+          if (err) {
+            return reject(err);
+          }
+          resolve(data);
+        });
       });
     });
   };
