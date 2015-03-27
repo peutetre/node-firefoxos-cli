@@ -27,12 +27,16 @@ var FFOS_Cli = function FFOS_Cli() {
     }
   }
 
-  function ensurePortForwarded() {
+  function ensurePortForwarded(sn) {
     if (!portForwarded) {
       portForwarded = true;
 
       return new Promise(function(resolve) {
-        adb.forward(localPort, remotePort, resolve);
+        if(sn) {
+          adb.prepareTransport(sn, function () {
+            adb.forward(localPort, remotePort, resolve);
+          });
+        }
       });
     } else {
       return Promise.resolve();
@@ -62,16 +66,30 @@ var FFOS_Cli = function FFOS_Cli() {
     });
   };
 
-  var getFirstDevice = function getFirstDevice() {
+  var getDevice = function getDevice(sn) {
     return getDevices().then(function (devices) {
+      if(devices.length == 0) {
+          return Promise.reject('No devices');
+      }
+      else if(sn) {
+        var device = devices.filter(function (d) {
+          return d.id === id;
+        });
+        if (device.length != 1)  {
+          return Promise.reject('Serial number is not unic');
+        }
+        else {
+          return device[0];
+        }
+      } else {
         return devices[0];
+      }
     });
   };
 
-  // Start displaying the logcat for the first device we find
-  var logcat = function logcat() {
-      getFirstDevice().then(function (device) {
-        if(!device) return;
+  // Start displaying the logcat for a device
+  var logcat = function logcat(sn) {
+      getDevice(sn).then(function (device) {
         device.logcat();
       });
   };
@@ -80,9 +98,9 @@ var FFOS_Cli = function FFOS_Cli() {
   // and a callback to know when we finished.
   // The callback expected 1 parameter, in case an error
   // happened
-  var screenshot = function screenshot(fileName) {
+  var screenshot = function screenshot(fileName, sn) {
     return new Promise(function(resolve, reject) {
-      getFirstDevice().then(function (device) {
+      getDevice(sn).then(function (device) {
         try {
           device.takeSnapshot(function onSnapshot(frame) {
             frame.writeImageFile(fileName);
@@ -101,11 +119,11 @@ var FFOS_Cli = function FFOS_Cli() {
     2.- Upload the selected zip file to the app id
     3.- Use the remote client to tell the system to install the app
   */
-  var installApp = function installApp(appId, localZip, appType) {
-    return ensurePortForwarded().then(function onForward() {
+  var installApp = function installApp(appId, localZip, appType, sn) {
+    return ensurePortForwarded(sn).then(function onForward() {
       //Build the remote url with the appId
       var remoteFile = '/data/local/tmp/b2g/' + appId + '/application.zip';
-      return pushFile(localZip, remoteFile).then(function onPushed(err, success) {
+      return pushFile(localZip, remoteFile, sn).then(function onPushed(err, success) {
         // Know bug in adb library it returns error 15 despite of uploading the file
         if (err && err != 15) {
           return Promise.reject(err);
@@ -145,12 +163,12 @@ var FFOS_Cli = function FFOS_Cli() {
   /*
     Shortcut of the previous function to install packaged apps
   */
-  var installHostedApp = function installHostedApp(appId, manifestFile) {
-    return installApp(appId, manifestFile, '1');
+  var installHostedApp = function installHostedApp(appId, manifestFile, sn) {
+    return installApp(appId, manifestFile, '1', sn);
   };
 
-  var installPackagedApp = function installPackagedApp(appId, localZip) {
-    return installApp(appId, localZip, '2');
+  var installPackagedApp = function installPackagedApp(appId, localZip, sn) {
+    return installApp(appId, localZip, '2', sn);
   };
 
   // Uses the remote protocol to tell the system to install an app
@@ -180,9 +198,9 @@ var FFOS_Cli = function FFOS_Cli() {
   };
 
   // Push a local file to a remote location on the phone
-  var pushFile = function pushFile(local, remote) {
+  var pushFile = function pushFile(local, remote, sn) {
     return new Promise(function(resolve, reject) {
-      getFirstDevice().then(function (device) {
+      getDevice(sn).then(function (device) {
         device.getSyncService(function onSyncService(sync) {
           sync.pushFile(local, remote, resolve);
         });
@@ -193,7 +211,7 @@ var FFOS_Cli = function FFOS_Cli() {
   // Resets the B2G process as the name says
   var resetB2G = function resetB2G() {
     return new Promise(function(resolve) {
-      getFirstDevices().then(function (devices) {
+      getDevices().then(function (devices) {
         for (var i = 0; i < devices.length; i++) {
           var device = devices[i];
           device.shellCmd('stop', ['b2g'], function onCmd(data) {
