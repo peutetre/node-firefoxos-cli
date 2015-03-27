@@ -69,7 +69,7 @@ var FFOS_Cli = function FFOS_Cli() {
       }
       else if(sn) {
         var device = devices.filter(function (d) {
-          return d.id === id;
+          return d.id === sn;
         });
         if (device.length != 1)  {
           return Promise.reject('Serial number is not unic');
