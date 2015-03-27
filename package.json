@@ -1,6 +1,6 @@
 {
   "name": "node-firefoxos-cli",
-  "version": "0.1.2",
+  "version": "0.2.2",
   "description": "Firefox OS command line commander",
   "keywords": [
     "firefox os",
@@ -23,7 +23,7 @@
     "url": "http://github.com/arcturus/node-firefoxos-cli.git"
   },
   "dependencies": {
-    "adb.js": "git://github.com/arcturus/adb.js.git#master",
+    "adb.js": "git://github.com/peutetre/adb.js.git#0.4.1",
     "promise": "^6.0.1"
   },
   "engines": {

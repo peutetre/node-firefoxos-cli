@@ -32,11 +32,7 @@ var FFOS_Cli = function FFOS_Cli() {
       portForwarded = true;
 
       return new Promise(function(resolve) {
-        if(sn) {
-          adb.prepareTransport(sn, function () {
-            adb.forward(localPort, remotePort, resolve);
-          });
-        }
+        adb.forward(localPort, remotePort, sn, resolve);
       });
     } else {
       return Promise.resolve();
