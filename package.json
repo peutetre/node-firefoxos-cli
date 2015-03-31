@@ -23,7 +23,7 @@
     "url": "http://github.com/peutetre/node-firefoxos-cli.git"
   },
   "dependencies": {
-    "adb.js-fork": "0.4.1",
+    "adb-fork": "0.4.1",
     "promise": "^6.0.1"
   },
   "engines": {
