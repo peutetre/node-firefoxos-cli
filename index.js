@@ -234,6 +234,6 @@ var FFOS_Cli = function FFOS_Cli() {
     'resetB2G': resetB2G
   };
 
-}();
+};
 
 module.exports = FFOS_Cli;
