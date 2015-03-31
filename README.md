@@ -34,7 +34,7 @@ In the `examples` folder you could find some code that shows the use of this lib
 #### Installing
 
 ```javascript
-var ffos_cli = require('node-firefoxos-cli');
+var ffos_cli = require('node-firefoxos-cli')();
 
 ffos_cli.installPackagedApp('boilerplate', './application.zip').then(
   function() {
@@ -49,7 +49,7 @@ ffos_cli.installPackagedApp('boilerplate', './application.zip').then(
 #### Launching an app
 
 ```javascript
-var ffos_cli = require('node-firefoxos-cli');
+var ffos_cli = require('node-firefoxos-cli')();
 
 ffos_cli.launchApp('boilerplate').then(process.exit);
 
@@ -58,7 +58,7 @@ ffos_cli.launchApp('boilerplate').then(process.exit);
 #### Stopping an app
 
 ```javascript
-var ffos_cli = require('node-firefoxos-cli');
+var ffos_cli = require('node-firefoxos-cli')();
 
 ffos_cli.closeApp('boilerplate').then(process.exit);
 ```
@@ -66,7 +66,7 @@ ffos_cli.closeApp('boilerplate').then(process.exit);
 ### Reset B2G process
 
 ```javascript
-var ffos_cli = require('node-firefoxos-cli');
+var ffos_cli = require('node-firefoxos-cli')();
 
 ffos_cli.resetB2G().then(function onReset() {
   console.log('B2G process reseted');
@@ -77,7 +77,7 @@ ffos_cli.resetB2G().then(function onReset() {
 ### Logcat
 
 ```javascript
-var ffos_cli = require('node-firefoxos-cli');
+var ffos_cli = require('node-firefoxos-cli')();
 
 //Output logcat from device continously
 ffos_cli.logcat();
