@@ -1,7 +1,8 @@
-# Firefox OS Node Command Line Develoment Tools
+# [Fork] Firefox OS Node Command Line Develoment Tools
 
 node library + command line tool to perform basic web app development on Firefox OS phones.
 
+fork of http://github.com/arcturus/node-firefoxos-cli
 
 ## Currenty supporting
 

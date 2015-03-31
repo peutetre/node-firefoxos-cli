@@ -1,7 +1,7 @@
 {
-  "name": "node-firefoxos-cli",
+  "name": "node-firefoxos-cli-fork",
   "version": "0.1.6",
-  "description": "Firefox OS command line commander",
+  "description": "Firefox OS command line commander fork",
   "keywords": [
     "firefox os",
     "firefox",
@@ -20,10 +20,10 @@
   },
   "repository": {
     "type": "git",
-    "url": "http://github.com/arcturus/node-firefoxos-cli.git"
+    "url": "http://github.com/peutetre/node-firefoxos-cli.git"
   },
   "dependencies": {
-    "adb.js": "peutetre/adb.js.git#0.4.1",
+    "adb.js-fork": "0.4.1",
     "promise": "^6.0.1"
   },
   "engines": {
