@@ -1,5 +1,5 @@
 var remote = require('./remote_debugger')
-    , ADB = require('adb').DebugBridge
+    , ADB = require('adb-fork').DebugBridge
     , Promise = require('promise');
 
 var FFOS_Cli = function FFOS_Cli() {
